@@ -27,7 +27,9 @@ const posts = allPosts
     </div>
 
     {posts.length === 0 ? (
-      <p class="text-muted text-sm font-mono">No posts yet — check back soon.</p>
+      <div class="flex flex-col items-center justify-center py-16 text-center border border-site rounded-xl bg-[var(--bg-secondary)]">
+        <p class="text-muted font-mono text-sm">Thoughts incoming — check back soon.</p>
+      </div>
     ) : (
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {posts.map((post, i) => (
