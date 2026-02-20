@@ -1,0 +1,98 @@
+---
+title: "Caching Embeddings in RAG Pipelines: A Practical Guide"
+description: "Embedding generation is expensive and often redundant. Here's how I built a Redis-backed semantic cache that cut inference costs by 80% in a production RAG system."
+pubDate: 2024-09-03
+tags: ["ML", "Python", "Redis", "RAG"]
+draft: false
+---
+
+If you've built a Retrieval-Augmented Generation (RAG) system and watched your embedding API bills climb, you've probably asked yourself: *do I really need to re-embed the same documents every time they come in?*
+
+The answer, almost always, is no. And the fix — a well-designed embedding cache — is surprisingly straightforward. Here's what I learned building one for a production workload that processes ~2M queries per day.
+
+## The Problem: Redundant Embeddings
+
+RAG pipelines typically look like this:
+
+```
+User query → Embed query → ANN search → Retrieve chunks → LLM → Response
+```
+
+The embedding step converts text to a dense vector so you can search your vector database. The problem is that queries aren't uniformly distributed. In our system, the top 500 distinct queries (out of millions) accounted for **43% of all traffic**. We were paying to embed the same strings tens of thousands of times a day.
+
+## Design: Exact vs. Semantic Caching
+
+There are two flavours of embedding caching:
+
+**Exact caching** stores `hash(text) → vector`. It's trivial to implement and has zero false positives. The downside is obvious — "What is diabetes?" and "what is diabetes?" are cache misses for each other.
+
+**Semantic caching** stores the embedding itself as a key. A query hits the cache if a *semantically similar* query was seen before, using approximate nearest-neighbour search on the cache entries. This is more complex but far higher hit-rate.
+
+I built both, and the semantic cache had a 3.4x higher hit rate with acceptable false-positive semantics for our use case.
+
+## Implementation
+
+The core idea: when we get a query, embed it, then check Redis for a "near enough" cached result before querying the vector DB.
+
+```python
+import redis
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+class EmbeddingCache:
+    def __init__(self, redis_url: str, threshold: float = 0.95):
+        self.redis = redis.from_url(redis_url)
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.threshold = threshold
+
+    def get_or_embed(self, text: str) -> np.ndarray:
+        # 1. Embed the query
+        vector = self.model.encode(text, normalize_embeddings=True)
+
+        # 2. Check for a semantic near-match in cache
+        cached = self._semantic_lookup(vector)
+        if cached is not None:
+            return cached  # Cache hit — skip API call
+
+        # 3. Cache miss — store and return
+        self._store(text, vector)
+        return vector
+
+    def _semantic_lookup(self, query_vec: np.ndarray) -> np.ndarray | None:
+        # Scan recent cache entries (in production: use a vector index)
+        for key in self.redis.scan_iter("emb:*", count=1000):
+            stored = np.frombuffer(self.redis.get(key), dtype=np.float32)
+            similarity = float(np.dot(query_vec, stored))  # cosine (vecs normalized)
+            if similarity >= self.threshold:
+                return stored
+        return None
+
+    def _store(self, text: str, vector: np.ndarray):
+        key = f"emb:{hash(text)}"
+        self.redis.setex(key, 3600, vector.astype(np.float32).tobytes())
+```
+
+> **Note:** The `scan_iter` approach above is for illustration. In production you'd use Redis Stack's vector similarity search (`VSIM`) or maintain a small FAISS index in-process for the cache lookup.
+
+## Results After 30 Days
+
+| Metric | Before cache | After cache |
+|--------|-------------|-------------|
+| Embedding API calls/day | 2.1M | 420K |
+| P50 embedding latency | 82ms | 0.4ms (cache hit) |
+| Cost reduction | — | ~80% |
+| False positive rate | — | 0.3% |
+
+The 0.3% false positive rate — where a cached embedding was semantically close but not a perfect substitute — was acceptable for our use case. We validated this by sampling false positives and checking downstream retrieval quality.
+
+## Lessons Learned
+
+**Tune the similarity threshold carefully.** At 0.98, our hit rate dropped to near zero. At 0.90, false positives spiked. 0.95 was the sweet spot for our domain, but yours will differ.
+
+**Cache invalidation is real.** When we updated our embedding model (from `all-MiniLM-L6-v2` to a fine-tuned variant), we had to flush the cache. Build versioning into your cache keys: `emb:v2:{hash}`.
+
+**Monitor hit rates by query cluster.** Aggregate cache hit rates can be misleading. We had 95% hit rates for support queries and 12% for novel technical questions. Knowing this helped us tune cache size and TTL per query type.
+
+**Redis TTL is your friend.** We expire cache entries after 1 hour. Stale embeddings aren't wrong, but fresh queries naturally repopulate the cache, so over time the cache reflects the current query distribution.
+
+Embedding caching is one of those optimizations that seems obvious in retrospect but is easy to skip when you're moving fast. If your RAG system is in production and you haven't added a cache, this is probably the highest-leverage thing you can do this week.

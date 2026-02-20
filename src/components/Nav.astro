@@ -1,0 +1,119 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { href: '/#about', label: 'About' },
+  { href: '/#experience', label: 'Experience' },
+  { href: '/#projects', label: 'Projects' },
+  { href: '/blog', label: 'Blog' },
+];
+---
+
+<header
+  id="site-nav"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+>
+  <nav class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a
+      href="/"
+      class="font-mono text-sm font-medium text-[var(--text)] hover:text-accent transition-colors"
+    >
+      hs<span class="text-accent">.</span>
+    </a>
+
+    <!-- Desktop links -->
+    <div class="hidden md:flex items-center gap-1">
+      {navLinks.map(({ href, label }) => (
+        <a
+          href={href}
+          class="px-3 py-1.5 text-sm text-muted hover:text-[var(--text)] transition-colors rounded-md hover:bg-[var(--bg-secondary)]"
+        >
+          {label}
+        </a>
+      ))}
+      <div class="ml-2">
+        <ThemeToggle />
+      </div>
+    </div>
+
+    <!-- Mobile controls -->
+    <div class="flex md:hidden items-center gap-2">
+      <ThemeToggle />
+      <button
+        id="mobile-menu-btn"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        class="w-8 h-8 flex flex-col items-center justify-center gap-1.5 text-muted hover:text-[var(--text)] transition-colors"
+      >
+        <span class="hamburger-line w-5 h-px bg-current transition-all duration-300 block"></span>
+        <span class="hamburger-line w-5 h-px bg-current transition-all duration-300 block"></span>
+        <span class="hamburger-line w-5 h-px bg-current transition-all duration-300 block"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-site border-b border-site px-6 pb-4"
+  >
+    {navLinks.map(({ href, label }) => (
+      <a
+        href={href}
+        class="block py-3 text-sm text-muted hover:text-[var(--text)] transition-colors border-b border-site last:border-0"
+      >
+        {label}
+      </a>
+    ))}
+  </div>
+</header>
+
+<script>
+  const nav = document.getElementById('site-nav');
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  // Scroll-based nav background
+  window.addEventListener('scroll', () => {
+    if (!nav) return;
+    if (window.scrollY > 20) {
+      nav.style.backgroundColor = 'var(--bg)';
+      nav.style.borderBottom = '1px solid var(--border)';
+    } else {
+      nav.style.backgroundColor = 'transparent';
+      nav.style.borderBottom = '1px solid transparent';
+    }
+  });
+
+  // Mobile menu toggle
+  btn?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('hidden') === false;
+    btn.setAttribute('aria-expanded', String(isOpen));
+    // Animate hamburger lines
+    const lines = btn.querySelectorAll('.hamburger-line');
+    if (isOpen) {
+      (lines[0] as HTMLElement).style.transform = 'rotate(45deg) translate(3px, 3px)';
+      (lines[1] as HTMLElement).style.opacity = '0';
+      (lines[2] as HTMLElement).style.transform = 'rotate(-45deg) translate(3px, -3px)';
+    } else {
+      lines.forEach((l) => {
+        (l as HTMLElement).style.transform = '';
+        (l as HTMLElement).style.opacity = '';
+      });
+    }
+  });
+
+  // Close mobile menu when a link is clicked
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      menu.classList.add('hidden');
+      btn?.setAttribute('aria-expanded', 'false');
+      const lines = btn?.querySelectorAll('.hamburger-line');
+      lines?.forEach((l) => {
+        (l as HTMLElement).style.transform = '';
+        (l as HTMLElement).style.opacity = '';
+      });
+    });
+  });
+</script>

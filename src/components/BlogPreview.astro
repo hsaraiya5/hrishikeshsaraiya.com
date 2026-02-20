@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import BlogCard from './BlogCard.astro';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const posts = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<section id="blog" class="py-24 px-6 bg-[var(--bg-secondary)]">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal flex items-end justify-between mb-12">
+      <div>
+        <h2 class="text-xs font-mono text-accent uppercase tracking-widest mb-4">Blog</h2>
+        <h3 class="text-3xl font-bold">Latest writing</h3>
+      </div>
+      <a
+        href="/blog"
+        class="text-sm text-muted hover:text-accent transition-colors font-mono flex items-center gap-1.5"
+      >
+        View all
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="text-muted text-sm font-mono">No posts yet — check back soon.</p>
+    ) : (
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {posts.map((post, i) => (
+          <div class="reveal" style={`transition-delay: ${i * 0.1}s`}>
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              slug={post.slug}
+              pubDate={post.data.pubDate}
+              tags={post.data.tags}
+            />
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>

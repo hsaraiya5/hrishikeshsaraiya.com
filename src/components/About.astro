@@ -1,0 +1,68 @@
+---
+const skills = [
+  'Python', 'Go', 'TypeScript', 'PostgreSQL', 'Redis',
+  'Kubernetes', 'Docker', 'PyTorch', 'FastAPI', 'AWS',
+];
+---
+
+<section id="about" class="py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal grid md:grid-cols-2 gap-16 items-start">
+      <!-- Text content -->
+      <div>
+        <h2 class="text-xs font-mono text-accent uppercase tracking-widest mb-4">About</h2>
+        <h3 class="text-3xl font-bold mb-6">Building at the intersection of systems and intelligence</h3>
+
+        <div class="space-y-4 text-muted leading-relaxed">
+          <p>
+            I'm a backend and ML engineer with a background in building production systems that scale.
+            I care deeply about the craft of software — writing code that's correct, observable, and a
+            pleasure for the next engineer (often future me) to work with.
+          </p>
+          <p>
+            Outside of work, I live with Type 1 Diabetes, which has shaped a lot of how I think about
+            closed-loop systems, reliability, and the very real stakes of software that touches human health.
+            I've channelled that into a personal interest in health tech and continuous glucose monitoring.
+          </p>
+          <p>
+            When I'm not at a keyboard, I'm probably reading, cooking, or finding a reason to watch
+            another F1 race. I believe the best engineers are also curious people who bring perspective
+            from outside the industry.
+          </p>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="reveal" style="transition-delay: 0.15s">
+        <h4 class="text-xs font-mono text-muted uppercase tracking-widest mb-6">Tools &amp; Technologies</h4>
+        <div class="flex flex-wrap gap-2">
+          {skills.map((skill) => (
+            <span class="px-3 py-1.5 text-sm font-mono border border-site rounded-md text-muted hover:border-accent hover:text-accent transition-colors cursor-default">
+              {skill}
+            </span>
+          ))}
+        </div>
+
+        <!-- Quick stats -->
+        <div class="mt-10 grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
+            <div class="text-2xl font-bold mb-1">5+</div>
+            <div class="text-xs text-muted font-mono">years of industry experience</div>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
+            <div class="text-2xl font-bold mb-1">10+</div>
+            <div class="text-xs text-muted font-mono">production systems shipped</div>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
+            <div class="text-2xl font-bold mb-1">∞</div>
+            <div class="text-xs text-muted font-mono">cups of coffee consumed</div>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
+            <div class="text-2xl font-bold mb-1">T1D</div>
+            <div class="text-xs text-muted font-mono">making health-tech personal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
