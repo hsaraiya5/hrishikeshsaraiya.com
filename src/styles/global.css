@@ -78,6 +78,14 @@
     border-color: var(--accent);
   }
 
+  .logo-blend {
+    mix-blend-mode: multiply;
+  }
+
+  .dark .logo-blend {
+    mix-blend-mode: screen;
+  }
+
   .reveal {
     opacity: 0;
     transform: translateY(24px);

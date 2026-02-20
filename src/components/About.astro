@@ -1,7 +1,35 @@
 ---
 const skills = [
-  'Python', 'Go', 'TypeScript', 'PostgreSQL', 'Redis',
-  'Kubernetes', 'Docker', 'PyTorch', 'FastAPI', 'AWS',
+  'Python', 'Kubernetes', 'Docker', 'AWS',
+  'Kubeflow', 'Metaflow', 'Systems Design',
+];
+
+const cards = [
+  {
+    type: 'svg',
+    label: '14 years with T1D',
+  },
+  {
+    type: 'img',
+    src: '/images/ohiostate.png',
+    alt: 'Ohio State',
+    label: 'CS + Statistics',
+    padding: 'p-1',
+  },
+  {
+    type: 'img',
+    src: '/images/upstart.png',
+    alt: 'Upstart',
+    label: 'ML Platform Engineer',
+    padding: 'p-3',
+  },
+  {
+    type: 'img',
+    src: '/images/arsenal.png',
+    alt: 'Arsenal',
+    label: 'COYG',
+    padding: 'p-3',
+  },
 ];
 ---
 
@@ -11,28 +39,27 @@ const skills = [
       <!-- Text content -->
       <div>
         <h2 class="text-xs font-mono text-accent uppercase tracking-widest mb-4">About</h2>
-        <h3 class="text-3xl font-bold mb-6">Building at the intersection of systems and intelligence</h3>
+        <h3 class="text-3xl font-bold mb-6">Systems Thinker, Life long learner, Type 1 Diabetic</h3>
 
         <div class="space-y-4 text-muted leading-relaxed">
           <p>
-            I'm a backend and ML engineer with a background in building production systems that scale.
-            I care deeply about the craft of software — writing code that's correct, observable, and a
-            pleasure for the next engineer (often future me) to work with.
+            Diagnosed with Type 1 Diabetes at 12 — an experience that's shaped how I think about resilience,
+            systems, and what it means to rely on technology. I found engineering through FRC robotics in high
+            school, studied CS and Statistics at Ohio State, and have spent my career on ML platform teams at
+            Capital One and now Upstart, focused on MLOps, Kubernetes, and the infrastructure that makes
+            machine learning actually work in production.
           </p>
           <p>
-            Outside of work, I live with Type 1 Diabetes, which has shaped a lot of how I think about
-            closed-loop systems, reliability, and the very real stakes of software that touches human health.
-            I've channelled that into a personal interest in health tech and continuous glucose monitoring.
-          </p>
-          <p>
-            When I'm not at a keyboard, I'm probably reading, cooking, or finding a reason to watch
-            another F1 race. I believe the best engineers are also curious people who bring perspective
-            from outside the industry.
+            Outside of work, I am an avid tennis fan, who goes to the US Open every year, a
+            die-hard Arsenal supporter, and an Ohio State football fan. I read widely — history, geopolitics,
+            investing — cook vegetarian food at home, and travel to India often to visit family. I'm a
+            practicing Hindu with a deep interest in Vedanta philosophy. I try to see everything in life
+            through a systems lens.
           </p>
         </div>
       </div>
 
-      <!-- Skills -->
+      <!-- Skills + Cards -->
       <div class="reveal" style="transition-delay: 0.15s">
         <h4 class="text-xs font-mono text-muted uppercase tracking-widest mb-6">Tools &amp; Technologies</h4>
         <div class="flex flex-wrap gap-2">
@@ -43,24 +70,28 @@ const skills = [
           ))}
         </div>
 
-        <!-- Quick stats -->
+        <!-- Icon cards -->
         <div class="mt-10 grid grid-cols-2 gap-4">
-          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
-            <div class="text-2xl font-bold mb-1">5+</div>
-            <div class="text-xs text-muted font-mono">years of industry experience</div>
-          </div>
-          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
-            <div class="text-2xl font-bold mb-1">10+</div>
-            <div class="text-xs text-muted font-mono">production systems shipped</div>
-          </div>
-          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
-            <div class="text-2xl font-bold mb-1">∞</div>
-            <div class="text-xs text-muted font-mono">cups of coffee consumed</div>
-          </div>
-          <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site">
-            <div class="text-2xl font-bold mb-1">T1D</div>
-            <div class="text-xs text-muted font-mono">making health-tech personal</div>
-          </div>
+          {cards.map((card) => (
+            <div class="p-4 rounded-xl bg-[var(--bg-secondary)] border border-site flex flex-col items-center justify-center gap-3 text-center">
+              {card.type === 'svg' ? (
+                <!-- T1D blue circle (international diabetes symbol) -->
+                <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="36" cy="36" r="32" stroke="#0096D6" stroke-width="5" fill="none"/>
+                  <text x="36" y="43" text-anchor="middle" font-family="monospace" font-size="18" font-weight="700" fill="#0096D6">T1D</text>
+                </svg>
+              ) : (
+                <div class={`rounded-2xl bg-white ${card.padding ?? 'p-3'} flex items-center justify-center shadow-sm`} style="width:80px;height:80px;">
+                  <img
+                    src={card.src}
+                    alt={card.alt}
+                    class="object-contain w-full h-full"
+                  />
+                </div>
+              )}
+              <span class="text-xs text-muted font-mono leading-tight">{card.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
